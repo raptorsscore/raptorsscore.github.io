@@ -1,0 +1,156 @@
+<html class="dancefloor">
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-136173273-3"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-136173273-3');
+		</script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<meta charset="utf-8">
+		<meta property="og:type" content="website">
+		<!-- <meta property="og:url" content="http://sdafsfdasfd.com" -->
+		<meta property="og:title" content="Whats the raptors score?">
+		<!-- <meta property="og:image" content="http://asdfasfasdfasdfasd.com/duck.gif"> -->
+		<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">		
+		<title>Whats the raptors score?</title>
+		<style type="text/css">
+			body {
+  			font-family: Arial, Helvetica, sans-serif;
+			 	background-image: url("logo.png");
+			}
+			.flex {
+			  display: flex;
+			}
+			.row {
+				flex-direction: column;
+			}
+			.col {
+			  flex: 1;
+			}
+			.height100 {
+				height: 100%;
+			}
+			.center {
+    		align-content: center;
+    		justify-content: center;
+    		text-align: center;
+			}
+			.large_font {
+				font-size: 8em;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="flex center row height100">
+			<div class="flex">
+	  		<div class="col large_font center">
+	  			<span>TOR</span>
+	  			<span id="raps_score">---</span>
+	  		</div>
+	  		<div class="col large_font center">
+	  			<span>GSW</span>
+	  			<span id="other_score">---</span>
+	  		</div>
+	  
+			</div>
+			<div class="flex center">
+				<img id="drake" src="https://media.giphy.com/media/o5oLImoQgGsKY/giphy.gif">
+			</div>
+		</div>
+	</body>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+				var base_url = "https://data.nba.net";
+				var today_url = base_url + "/prod/v1/today.json";
+				var cors_url = "https://cors-anywhere.herokuapp.com";
+				var current_game_url;
+				var is_raptors_playing;
+				var raptors_score = 0;
+				var other_team_score = 0;
+
+				var waiting_drake = [
+					'https://thumbs.gfycat.com/GrandioseLikelyCrow-size_restricted.gif',
+					'https://media.giphy.com/media/dZCHzoHU662BOD4W0G/giphy.gif'
+				];
+
+				var happy_drake = [
+					'https://media.giphy.com/media/dOXk4pNgdfZRu/giphy.gif'
+				];
+
+				var sad_drake = [
+					'https://media.giphy.com/media/7S6K3cc58aTzq/giphy.gif'
+				];
+
+				var nervous_drake = [
+					'https://media.giphy.com/media/7S6K3cc58aTzq/giphy.gif'
+				];
+
+				updateStuff();
+
+				setInterval(function(){
+					updateStuff();
+				}, 10000);
+
+
+				function changeDrake(img){          	
+					 $("#drake").fadeOut(1000, function() {
+						$("#drake").attr('src',img);
+	        }).fadeIn(1000);
+				}
+
+				function updateStuff(){
+					$.ajax({
+			        url: cors_url + '/' + today_url,
+			        type: "application/json",
+			        method: 'GET',
+			        success: function(resp){
+			        		current_game_url = base_url + resp.links.currentScoreboard;
+				            $.ajax({
+							        url: cors_url + '/' + current_game_url,
+							        type: "application/json",
+							        method: 'GET',
+							        success: function(resp){
+							            var current_game = resp.games[0];
+							            is_raptors_playing = current_game.isGameActivated;
+							            if (current_game.hTeam.triCode == 'TOR') {
+							            	raptors_score = current_game.hTeam.score;
+							            	other_team_score = 	current_game.vTeam.score;
+							            } else if (current_game.vTeam.triCode == 'TOR') {
+							            	raptors_score = current_game.vTeam.score;
+							            	other_team_score = 	current_game.hTeam.score;
+							            }
+							            if (is_raptors_playing) {
+							            	$('#raps_score').text(raptors_score);
+							            	$('#other_score').text(other_team_score);
+
+							            	if (parseInt(raptors_score) > parseInt(raptors_score)) {
+															$('#drake').attr('src', happy_drake[Math.floor(Math.random() * happy_drake.length)]);
+							            	} else if (parseInt(raptors_score) < parseInt(raptors_score)) {
+							            		$('#drake').attr('src', sad_drake[Math.floor(Math.random() * sad_drake.length)]);
+							            	} else {
+							            		$('#drake').attr('src', nervous_drake[Math.floor(Math.random() * nervous_drake.length)]);
+							            	}
+							            } else {
+							            	changeDrake(waiting_drake[Math.floor(Math.random() * waiting_drake.length)]);
+							            }
+							        },
+							        error: function(err){
+							            console.log('We almost made it');
+							            console.log(err.toString());
+							        }
+								    });
+			        },
+			        error: function(err){
+			            console.log('RIP we broken');
+			        }
+			    });
+				}
+		});
+	</script>
+</html>
+
